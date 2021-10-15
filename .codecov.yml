@@ -15,3 +15,11 @@ coverage:
       default:
         enabled: yes
         target: 70
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: yes
+      macro: no
