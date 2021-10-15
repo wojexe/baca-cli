@@ -59,18 +59,30 @@ jobs:
           TEST_BACA_LOGIN: ${{ secrets.TEST_BACA_LOGIN }}
           TEST_BACA_HOST: ${{ secrets.TEST_BACA_HOST }}
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-          CARGO_INCREMENTAL: "0"
-          RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort -Cdebug-assertions=off'
-          RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort -Cdebug-assertions=off'
+          RUSTFLAGS: '-Zinstrument-coverage'
+
+      - name: Generate coverage data HTML
+        run: grcov . --binary-path ./target/debug/ -s . -t html --branch --ignore-not-existing -o ./coverage/
+#        id: grcov
+#        uses: actions-rs/grcov@v0.1
 
       - name: Generate coverage data
-        id: grcov
-        uses: actions-rs/grcov@v0.1
+        run: grcov . --binary-path ./target/debug/ -s . -t lcov --branch --ignore-not-existing -o ./lcov.info
+#        id: grcov
+#        uses: actions-rs/grcov@v0.1
+
+      - name: Upload HTML coverage as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: lcov.info
+          path: ./coverage/
+
       - name: Upload coverage as artifact
         uses: actions/upload-artifact@v2
         with:
           name: lcov.info
-          path: ${{ steps.grcov.outputs.report }}
+#          path: ${{ steps.grcov.outputs.report }}
+          path: ./lcov.info
 
       - name: Upload coverage to codecov.io
         uses: codecov/codecov-action@v1
